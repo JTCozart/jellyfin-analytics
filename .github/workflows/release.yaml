@@ -1,4 +1,4 @@
-name: '🚀 Release Plugin'
+name: 'Release Plugin'
 
 # Cut a release by pushing a timestamp tag of the form vYYYYMMDD.HHMM, e.g.:
 #   git tag v20260611.1430 && git push origin v20260611.1430
