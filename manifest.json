@@ -1,0 +1,20 @@
+[
+    {
+        "guid": "468cb846-bf39-421c-8c60-dfc2f39ee304",
+        "name": "User Analytics",
+        "description": "User Analytics gathers playback activity from live Jellyfin session events and stores it in a local SQLite database. It exposes a per-user analytics dashboard (admin) and a REST API showing play history, play counts, total watch time and most-watched items.\n",
+        "overview": "Per-user playback analytics: play history, play counts and watch time.",
+        "owner": "jtczrt",
+        "category": "General",
+        "versions": [
+            {
+                "version": "2026.6.11.1153",
+                "changelog": "### 1.0.0.0 - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.\n",
+                "targetAbi": "10.11.0.0",
+                "sourceUrl": "https://github.com/JTCozart/jellyfin-analytics/releases/download/v20260611.1153/user-analytics_2026.6.11.1153.zip",
+                "checksum": "1e0e41483247113244cfd58c4e7d7532",
+                "timestamp": "2026-06-11T15:53:48Z"
+            }
+        ]
+    }
+]

@@ -71,11 +71,25 @@ compiles against `Microsoft.Data.Sqlite` but does **not** bundle it — Jellyfin
 ships `Microsoft.Data.Sqlite`, `SQLitePCLRaw` and the native SQLite library, so the packaged
 plugin is a single DLL with no extra dependencies.
 
-## Installing locally
+## Installing (recommended: plugin repository)
 
-1. Build (above).
-2. Copy `bin/Release/net9.0/Jellyfin.Plugin.UserAnalytics.dll` into a `UserAnalytics` folder
-   under your server's `plugins` directory.
+Add this repository in Jellyfin to install and get automatic updates from the catalog:
+
+1. **Dashboard → Plugins → Repositories → ＋** and add the manifest URL:
+   ```
+   https://raw.githubusercontent.com/JTCozart/jellyfin-analytics/master/manifest.json
+   ```
+2. **Catalog →** find **User Analytics** (General) and click **Install**.
+3. Restart Jellyfin, then open **User Analytics** from the Dashboard menu.
+
+The full install guide with screenshots lives at
+**https://jtcozart.github.io/jellyfin-analytics/**.
+
+## Installing manually
+
+1. Build (above), or download the `.zip` from [Releases](https://github.com/JTCozart/jellyfin-analytics/releases).
+2. Copy `Jellyfin.Plugin.UserAnalytics.dll` into a `UserAnalytics` folder under your server's
+   `plugins` directory.
 3. Restart Jellyfin and open **Dashboard → Plugins → User Analytics**.
 
 ## Packaging / releases
