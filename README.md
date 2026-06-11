@@ -65,16 +65,16 @@ Run it from the plugin's settings page ("Import from logs now") or via
 dotnet build -c Release
 ```
 
-The plugin and its runtime dependencies are written to
-`Jellyfin.Plugin.UserAnalytics/bin/Release/net8.0/`. `CopyLocalLockFileAssemblies` is
-enabled so `Microsoft.Data.Sqlite`, the `SQLitePCLRaw.*` assemblies and the native
-`runtimes/` folder are produced alongside the plugin DLL.
+The plugin DLL is written to `Jellyfin.Plugin.UserAnalytics/bin/Release/net9.0/`. The plugin
+compiles against `Microsoft.Data.Sqlite` but does **not** bundle it — Jellyfin 10.11 already
+ships `Microsoft.Data.Sqlite`, `SQLitePCLRaw` and the native SQLite library, so the packaged
+plugin is a single DLL with no extra dependencies.
 
 ## Installing locally
 
 1. Build (above).
-2. Copy the **entire** contents of `bin/Release/net8.0/` (the DLLs **and** the `runtimes/`
-   folder) into a `UserAnalytics` folder under your server's `plugins` directory.
+2. Copy `bin/Release/net9.0/Jellyfin.Plugin.UserAnalytics.dll` into a `UserAnalytics` folder
+   under your server's `plugins` directory.
 3. Restart Jellyfin and open **Dashboard → Plugins → User Analytics**.
 
 ## Packaging / releases
@@ -90,8 +90,8 @@ plugin and attaches the resulting `.zip` to the release.
 
 ## Requirements
 
-- Jellyfin **10.10.x** (ABI `10.10.0.0`)
-- .NET 8 SDK to build
+- Jellyfin **10.11.x** (ABI `10.11.0.0`)
+- .NET 9 SDK to build
 
 ## License
 

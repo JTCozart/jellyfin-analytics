@@ -2,8 +2,8 @@
 name: "User Analytics"
 guid: "468cb846-bf39-421c-8c60-dfc2f39ee304"
 version: "1.0.0.0"
-targetAbi: "10.10.0.0"
-framework: "net8.0"
+targetAbi: "10.11.0.0"
+framework: "net9.0"
 overview: "Per-user playback analytics: play history, play counts and watch time."
 description: >
   User Analytics gathers playback activity from live Jellyfin session events and stores it
@@ -13,11 +13,6 @@ category: "General"
 owner: "jtczrt"
 artifacts:
   - "Jellyfin.Plugin.UserAnalytics.dll"
-  - "Microsoft.Data.Sqlite.dll"
-  - "SQLitePCLRaw.batteries_v2.dll"
-  - "SQLitePCLRaw.core.dll"
-  - "SQLitePCLRaw.provider.e_sqlite3.dll"
-  - "runtimes"
 changelog: >
   ### 1.0.0.0
   - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.
