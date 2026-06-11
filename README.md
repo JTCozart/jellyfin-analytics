@@ -1,6 +1,6 @@
 # Jellyfin User Analytics Plugin
 
-[![Build Plugin](https://github.com/JTCozart/jellyfin-analytics-/actions/workflows/build.yaml/badge.svg)](https://github.com/JTCozart/jellyfin-analytics-/actions/workflows/build.yaml)
+[![Build Plugin](https://github.com/JTCozart/jellyfin-analytics/actions/workflows/build.yaml/badge.svg)](https://github.com/JTCozart/jellyfin-analytics/actions/workflows/build.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 A Jellyfin server plugin that produces **per-user playback analytics** — play history,
