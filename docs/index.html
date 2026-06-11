@@ -3,8 +3,50 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>User Analytics — Jellyfin plugin</title>
-<meta name="description" content="Per-user playback analytics for Jellyfin: play history, play counts, watch time and charts in an admin dashboard." />
+
+<title>User Analytics for Jellyfin — Per-User Playback Stats, History &amp; Charts</title>
+<meta name="description" content="A free, open-source Jellyfin plugin for per-user playback analytics: play history, play counts, total watch time and charts in an admin dashboard. Installable as a plugin repository with auto-updates." />
+<meta name="keywords" content="Jellyfin plugin, Jellyfin analytics, playback reporting, watch stats, play history, watch time, per-user statistics, Jellyfin dashboard, media server analytics" />
+<meta name="author" content="jtczrt" />
+<meta name="robots" content="index, follow" />
+<meta name="theme-color" content="#00a4dc" />
+<link rel="canonical" href="https://jtcozart.github.io/jellyfin-analytics/" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="User Analytics for Jellyfin" />
+<meta property="og:title" content="User Analytics for Jellyfin — Per-User Playback Stats, History &amp; Charts" />
+<meta property="og:description" content="Per-user playback analytics for Jellyfin: play history, play counts, total watch time and charts in an admin dashboard. Install as a repository with auto-updates." />
+<meta property="og:url" content="https://jtcozart.github.io/jellyfin-analytics/" />
+<meta property="og:image" content="https://jtcozart.github.io/jellyfin-analytics/og-image.svg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="User Analytics for Jellyfin" />
+<meta name="twitter:description" content="Per-user playback analytics for Jellyfin: play history, play counts, watch time and charts." />
+<meta name="twitter:image" content="https://jtcozart.github.io/jellyfin-analytics/og-image.svg" />
+
+<!-- Structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "User Analytics for Jellyfin",
+  "applicationCategory": "MultimediaApplication",
+  "applicationSubCategory": "Jellyfin Plugin",
+  "operatingSystem": "Cross-platform (Jellyfin 10.11+)",
+  "description": "A free, open-source Jellyfin plugin for per-user playback analytics: play history, play counts, total watch time and charts in an admin dashboard.",
+  "url": "https://jtcozart.github.io/jellyfin-analytics/",
+  "downloadUrl": "https://github.com/JTCozart/jellyfin-analytics/releases",
+  "softwareHelp": "https://github.com/JTCozart/jellyfin-analytics#readme",
+  "license": "https://github.com/JTCozart/jellyfin-analytics/blob/master/LICENSE",
+  "author": { "@type": "Person", "name": "jtczrt", "url": "https://linktr.ee/jtczrt" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
 <style>
   :root {
     --bg: #0b0e13; --bg2: #11151c; --card: #161b24; --line: rgba(255,255,255,.08);
@@ -216,9 +258,16 @@
 
 <footer>
   <div class="wrap">
-    User Analytics for Jellyfin · <a href="https://github.com/JTCozart/jellyfin-analytics">Source</a> ·
-    <a href="https://github.com/JTCozart/jellyfin-analytics/releases">Releases</a> ·
-    MIT licensed · Not affiliated with the Jellyfin project.
+    <nav class="footlinks" aria-label="Footer">
+      <a href="https://github.com/JTCozart/jellyfin-analytics">Source</a> ·
+      <a href="https://github.com/JTCozart/jellyfin-analytics/releases">Releases</a> ·
+      <a href="https://github.com/JTCozart/jellyfin-analytics/issues">Issues</a> ·
+      <a href="https://linktr.ee/jtczrt" rel="me">Linktree</a>
+    </nav>
+    <p style="margin:10px 0 0;">
+      Built by <a href="https://linktr.ee/jtczrt" rel="me author">@jtczrt</a> ·
+      MIT licensed · Not affiliated with the Jellyfin project.
+    </p>
   </div>
 </footer>
 
