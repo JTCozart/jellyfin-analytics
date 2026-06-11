@@ -10,12 +10,14 @@ summary widgets and charts) and exposed over a REST API.
 ## How it works
 
 The plugin subscribes to Jellyfin's live `ISessionManager` playback events
-(`PlaybackStopped`) and records each completed play into a local **SQLite** database in the
-plugin's data folder (`<config>/data/useranalytics/useranalytics.db`).
+(`PlaybackStart` / `PlaybackStopped`) and records each completed play into a local **SQLite**
+database in the plugin's data folder (`<config>/data/useranalytics/useranalytics.db`). Watch
+time is measured as wall-clock time between start and stop, and each play session is recorded
+exactly once (de-duplicated by play-session id).
 
 > Live tracking captures plays from the moment the plugin is installed forward. For older
-> activity, see [Historical log import](#historical-log-import) — a best-effort backfill
-> parsed from the server logs.
+> activity, see [Importing watch history](#importing-watch-history) — a backfill from
+> Jellyfin's own per-user watch history.
 
 ## Features
 
@@ -26,7 +28,8 @@ plugin's data folder (`<config>/data/useranalytics/useranalytics.db`).
   history for each user.
 - **Configurable** — retention window, a minimum-play-seconds threshold to ignore
   accidental plays, and a toggle for live tracking.
-- **Historical log import** — best-effort backfill of plays parsed from the server logs.
+- **Watch-history import** — backfill from Jellyfin's per-user watch history (play counts and
+  last-played dates) so pre-install activity is included.
 - **REST API** under `/UserAnalytics` (admin only).
 
 ## API
@@ -42,22 +45,20 @@ All endpoints require an authenticated admin (policy `RequiresElevation`).
 | GET  | `/UserAnalytics/Users/{userId}/TopItems?limit=` | Most-watched items |
 | GET  | `/UserAnalytics/Timeline?userId=&days=` | Per-day plays/watch time (charts) |
 | GET  | `/UserAnalytics/ByType?userId=` | Plays/watch time grouped by media type |
-| POST | `/UserAnalytics/Import/Logs` | Trigger a historical log import |
+| POST | `/UserAnalytics/Import/WatchHistory` | Backfill from Jellyfin's watch history |
 
-## Historical log import
+## Importing watch history
 
-Jellyfin's log format is **not a stable API** and often does not include the user or item
-id, so this import is best-effort:
+Jellyfin already records, per user and item, a **play count** and a **last-played date** (the
+data behind "played" marks and resume). This import reads that history via `IUserDataManager`
+so plays from before the plugin was installed are included.
 
-- It scans `*.log` files in the server log directory and matches a configurable regular
-  expression (set in the plugin settings). The pattern must expose a named group `item`
-  (required) and may expose `ms` (played milliseconds) and `user`.
-- Matches without a `user` group are attributed to a placeholder *"Imported (unknown
-  user)"* account.
-- Re-running the import **replaces** previously imported rows, so it is idempotent.
-
-Run it from the plugin's settings page ("Import from logs now") or via
-`POST /UserAnalytics/Import/Logs`. Live event tracking remains the reliable data source.
+- Run it from the dashboard ("Import watch history now") or via
+  `POST /UserAnalytics/Import/WatchHistory`.
+- Because the watch history does not store how long each individual play lasted, **watch time
+  for imported plays is estimated from the item runtime** (runtime × play count). Live tracking
+  remains the accurate source for watch time going forward.
+- Re-running **replaces** previously imported rows, so it is idempotent.
 
 ## Building
 

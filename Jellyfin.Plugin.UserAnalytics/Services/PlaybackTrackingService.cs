@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Plugin.UserAnalytics.Data;
@@ -14,11 +15,20 @@ namespace Jellyfin.Plugin.UserAnalytics.Services;
 /// <summary>
 /// Background service that records playback activity from live session events.
 /// </summary>
+/// <remarks>
+/// One row is recorded per play session. The watch duration is measured as wall-clock time
+/// between <c>PlaybackStart</c> and <c>PlaybackStopped</c> (not the resume position, which
+/// would over-count when a user skips to the end). De-duplication keys off the play session
+/// id, because Jellyfin can raise <c>PlaybackStopped</c> more than once for a single play.
+/// </remarks>
 public sealed class PlaybackTrackingService : IHostedService
 {
     private readonly ISessionManager _sessionManager;
     private readonly IPlaybackRepository _repository;
     private readonly ILogger<PlaybackTrackingService> _logger;
+
+    // Key: play session id -> when playback started (UTC).
+    private readonly ConcurrentDictionary<string, DateTime> _inFlight = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PlaybackTrackingService"/> class.
@@ -39,10 +49,10 @@ public sealed class PlaybackTrackingService : IHostedService
     /// <inheritdoc />
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        _sessionManager.PlaybackStart += OnPlaybackStart;
         _sessionManager.PlaybackStopped += OnPlaybackStopped;
         _logger.LogInformation("User Analytics playback tracking started");
 
-        // Apply retention on startup.
         var config = Plugin.Instance?.Configuration;
         if (config is not null)
         {
@@ -55,9 +65,21 @@ public sealed class PlaybackTrackingService : IHostedService
     /// <inheritdoc />
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        _sessionManager.PlaybackStart -= OnPlaybackStart;
         _sessionManager.PlaybackStopped -= OnPlaybackStopped;
+        _inFlight.Clear();
         _logger.LogInformation("User Analytics playback tracking stopped");
         return Task.CompletedTask;
+    }
+
+    private void OnPlaybackStart(object? sender, PlaybackProgressEventArgs e)
+    {
+        var key = GetSessionKey(e);
+        if (key is not null)
+        {
+            // A fresh start resets the timer for this session.
+            _inFlight[key] = DateTime.UtcNow;
+        }
     }
 
     private void OnPlaybackStopped(object? sender, PlaybackStopEventArgs e)
@@ -76,7 +98,18 @@ public sealed class PlaybackTrackingService : IHostedService
                 return;
             }
 
-            var playedSeconds = GetPlayedSeconds(e);
+            var key = GetSessionKey(e);
+
+            // Record only the first stop for a session. TryRemove returns false for a
+            // duplicate stop (already recorded) or for a play whose start we never saw
+            // (e.g. it began before the plugin loaded) - both are skipped, which keeps the
+            // play count and the wall-clock duration correct.
+            if (key is null || !_inFlight.TryRemove(key, out var startedUtc))
+            {
+                return;
+            }
+
+            var playedSeconds = (long)Math.Max(0, (DateTime.UtcNow - startedUtc).TotalSeconds);
             var minimum = config?.MinimumPlaySeconds ?? 0;
             if (playedSeconds < minimum)
             {
@@ -120,13 +153,23 @@ public sealed class PlaybackTrackingService : IHostedService
         }
     }
 
-    private static long GetPlayedSeconds(PlaybackStopEventArgs e)
+    private static string? GetSessionKey(PlaybackProgressEventArgs e)
     {
-        if (e.PlaybackPositionTicks is { } ticks && ticks > 0)
+        if (!string.IsNullOrEmpty(e.PlaySessionId))
         {
-            return ticks / TimeSpan.TicksPerSecond;
+            return e.PlaySessionId;
         }
 
-        return 0;
+        if (!string.IsNullOrEmpty(e.Session?.Id))
+        {
+            return e.Session.Id;
+        }
+
+        if (e.Item is null || e.Users is null || e.Users.Count == 0)
+        {
+            return null;
+        }
+
+        return $"{e.Users[0].Id:N}:{e.Item.Id:N}";
     }
 }

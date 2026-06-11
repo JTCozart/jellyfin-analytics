@@ -20,17 +20,17 @@ namespace Jellyfin.Plugin.UserAnalytics.Api;
 public class UserAnalyticsController : ControllerBase
 {
     private readonly IPlaybackRepository _repository;
-    private readonly LogImportService _logImportService;
+    private readonly WatchHistoryImportService _watchHistoryImportService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserAnalyticsController"/> class.
     /// </summary>
     /// <param name="repository">Instance of the <see cref="IPlaybackRepository"/> interface.</param>
-    /// <param name="logImportService">The log import service.</param>
-    public UserAnalyticsController(IPlaybackRepository repository, LogImportService logImportService)
+    /// <param name="watchHistoryImportService">The watch history import service.</param>
+    public UserAnalyticsController(IPlaybackRepository repository, WatchHistoryImportService watchHistoryImportService)
     {
         _repository = repository;
-        _logImportService = logImportService;
+        _watchHistoryImportService = watchHistoryImportService;
     }
 
     /// <summary>
@@ -117,13 +117,14 @@ public class UserAnalyticsController : ControllerBase
         => Ok(_repository.GetActivityByType(Normalize(userId)));
 
     /// <summary>
-    /// Triggers a best-effort import of historical playback activity from the server logs.
+    /// Imports historical playback from Jellyfin's per-user watch history (play counts and
+    /// last-played dates). Watch time for imported plays is estimated from item runtime.
     /// </summary>
     /// <returns>A summary of the import.</returns>
-    [HttpPost("Import/Logs")]
+    [HttpPost("Import/WatchHistory")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<LogImportResult> ImportLogs()
-        => Ok(_logImportService.Import());
+    public ActionResult<ImportResult> ImportWatchHistory()
+        => Ok(_watchHistoryImportService.Import());
 
     private static Guid? Normalize(Guid? userId)
         => userId is null || userId.Value == Guid.Empty ? null : userId;

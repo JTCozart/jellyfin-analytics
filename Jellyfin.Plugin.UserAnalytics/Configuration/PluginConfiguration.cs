@@ -15,8 +15,6 @@ public class PluginConfiguration : BasePluginConfiguration
         RetentionDays = 0;
         MinimumPlaySeconds = 30;
         TrackLivePlayback = true;
-        LogPlaybackPattern =
-            @"Playback stopped reported by app (?<app>.+?) (?<version>\S+) playing (?<item>.+?)\. Stopped at (?<ms>\d+) ms";
     }
 
     /// <summary>
@@ -34,11 +32,4 @@ public class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets a value indicating whether live playback events are tracked.
     /// </summary>
     public bool TrackLivePlayback { get; set; }
-
-    /// <summary>
-    /// Gets or sets the regular expression used to extract playback events from log files
-    /// during a historical import. Must expose named groups: <c>item</c> (required),
-    /// <c>ms</c> (optional, played milliseconds) and <c>user</c> (optional).
-    /// </summary>
-    public string LogPlaybackPattern { get; set; } = string.Empty;
 }

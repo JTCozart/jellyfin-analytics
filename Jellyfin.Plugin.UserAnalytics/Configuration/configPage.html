@@ -6,132 +6,176 @@
 </head>
 <body>
 <div id="userAnalyticsConfigPage" data-role="page" class="page type-interior pluginConfigurationPage">
+    <style>
+        .ua-root { max-width: 1100px; margin: 0 auto; }
+        .ua-header { display: flex; align-items: center; justify-content: space-between; gap: 1em; flex-wrap: wrap; margin-bottom: 1.2em; }
+        .ua-header h1 { margin: 0; }
+        .ua-sub { opacity: .65; margin: .2em 0 0; font-size: .9em; }
+
+        .ua-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1em; margin-bottom: 1.6em; }
+        .ua-kpi { background: rgba(127,127,127,.08); border: 1px solid rgba(127,127,127,.18); border-radius: 10px; padding: 1em 1.1em; }
+        .ua-kpi-label { opacity: .65; font-size: .82em; text-transform: uppercase; letter-spacing: .04em; }
+        .ua-kpi-value { font-size: 1.9em; font-weight: 600; line-height: 1.2; margin-top: .15em; }
+
+        .ua-card { background: rgba(127,127,127,.08); border: 1px solid rgba(127,127,127,.18); border-radius: 10px; padding: 1.1em 1.2em; margin-bottom: 1.6em; }
+        .ua-card-head { display: flex; align-items: center; justify-content: space-between; gap: 1em; flex-wrap: wrap; margin-bottom: .8em; }
+        .ua-card-head h2 { margin: 0; font-size: 1.15em; }
+
+        .ua-grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.6em; }
+        @media (max-width: 740px) { .ua-grid-2 { grid-template-columns: 1fr; } }
+
+        .ua-table { width: 100%; border-collapse: collapse; }
+        .ua-table th, .ua-table td { text-align: left; padding: .6em .5em; }
+        .ua-table thead th { font-size: .8em; text-transform: uppercase; letter-spacing: .04em; opacity: .6; border-bottom: 1px solid rgba(127,127,127,.25); }
+        .ua-table tbody tr { border-bottom: 1px solid rgba(127,127,127,.12); }
+        .ua-table.ua-clickable tbody tr { cursor: pointer; }
+        .ua-table.ua-clickable tbody tr:hover { background: rgba(0,164,220,.10); }
+        .ua-table td.ua-num, .ua-table th.ua-num { text-align: right; font-variant-numeric: tabular-nums; }
+
+        .ua-muted { opacity: .65; }
+        .ua-empty { opacity: .65; padding: 1.4em .2em; text-align: center; }
+        .ua-spinner { opacity: .65; padding: 1.4em .2em; text-align: center; }
+
+        .ua-chip { display: inline-block; padding: .12em .6em; border-radius: 999px; background: rgba(127,127,127,.16); font-size: .8em; }
+        .ua-rank { display: inline-flex; width: 1.6em; height: 1.6em; align-items: center; justify-content: center; border-radius: 50%; background: rgba(0,164,220,.18); color: #00a4dc; font-size: .8em; font-weight: 600; margin-right: .5em; flex: 0 0 auto; }
+        .ua-toplist { list-style: none; padding: 0; margin: 0; }
+        .ua-toplist li { display: flex; align-items: center; gap: .4em; padding: .45em 0; border-bottom: 1px solid rgba(127,127,127,.12); }
+        .ua-toplist .ua-toplist-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .ua-note { background: rgba(0,164,220,.08); border: 1px solid rgba(0,164,220,.25); border-radius: 8px; padding: .8em 1em; font-size: .9em; }
+        .ua-result { margin-top: 1em; min-height: 1.2em; }
+        .ua-canvas-wrap { position: relative; min-height: 180px; }
+        select.ua-select { background: rgba(127,127,127,.12); color: inherit; border: 1px solid rgba(127,127,127,.3); border-radius: 6px; padding: .3em .6em; }
+        input.ua-search { background: rgba(127,127,127,.12); color: inherit; border: 1px solid rgba(127,127,127,.3); border-radius: 6px; padding: .4em .7em; min-width: 200px; }
+    </style>
+
     <div data-role="content">
         <div class="content-primary">
+            <div class="ua-root">
 
-            <h1>User Analytics</h1>
-
-            <!-- Overview widgets -->
-            <div class="uaWidgets" style="display:flex;flex-wrap:wrap;gap:1em;margin:1em 0;">
-                <div class="uaCard paperList" style="flex:1 1 180px;padding:1em;border-radius:8px;">
-                    <div style="opacity:.7;">Total plays</div>
-                    <div id="uaTotalPlays" style="font-size:1.8em;font-weight:600;">–</div>
-                </div>
-                <div class="uaCard paperList" style="flex:1 1 180px;padding:1em;border-radius:8px;">
-                    <div style="opacity:.7;">Total watch time</div>
-                    <div id="uaTotalTime" style="font-size:1.8em;font-weight:600;">–</div>
-                </div>
-                <div class="uaCard paperList" style="flex:1 1 180px;padding:1em;border-radius:8px;">
-                    <div style="opacity:.7;">Active users</div>
-                    <div id="uaTotalUsers" style="font-size:1.8em;font-weight:600;">–</div>
-                </div>
-                <div class="uaCard paperList" style="flex:1 1 180px;padding:1em;border-radius:8px;">
-                    <div style="opacity:.7;">Distinct items</div>
-                    <div id="uaDistinctItems" style="font-size:1.8em;font-weight:600;">–</div>
-                </div>
-            </div>
-
-            <!-- Charts -->
-            <div style="display:flex;flex-wrap:wrap;gap:2em;margin:1em 0;">
-                <div style="flex:2 1 360px;min-width:300px;">
-                    <h3 id="uaTimelineTitle">Plays over time (all users)</h3>
-                    <canvas id="uaTimelineChart" height="140"></canvas>
-                </div>
-                <div style="flex:1 1 240px;min-width:240px;">
-                    <h3>Watch time by type</h3>
-                    <canvas id="uaTypeChart" height="200"></canvas>
-                </div>
-            </div>
-
-            <!-- Per-user table -->
-            <h3>Users</h3>
-            <p id="uaUsersEmpty" style="opacity:.7;display:none;">
-                No playback has been recorded yet. Play something, or import history from logs below.
-            </p>
-            <table class="tblUsers" style="width:100%;border-collapse:collapse;" id="uaUsersTable">
-                <thead>
-                    <tr style="text-align:left;border-bottom:1px solid rgba(255,255,255,.2);">
-                        <th style="padding:.4em;">User</th>
-                        <th style="padding:.4em;">Plays</th>
-                        <th style="padding:.4em;">Watch time</th>
-                        <th style="padding:.4em;">Items</th>
-                        <th style="padding:.4em;">Last played</th>
-                    </tr>
-                </thead>
-                <tbody id="uaUsersBody"></tbody>
-            </table>
-
-            <!-- Per-user detail -->
-            <div id="uaUserDetail" style="display:none;margin-top:2em;">
-                <h2 id="uaUserDetailName"></h2>
-                <div style="display:flex;flex-wrap:wrap;gap:2em;">
-                    <div style="flex:2 1 360px;min-width:300px;">
-                        <h3>This user's plays over time</h3>
-                        <canvas id="uaUserTimelineChart" height="140"></canvas>
-                        <h3>Recent play history</h3>
-                        <table style="width:100%;border-collapse:collapse;">
-                            <thead>
-                                <tr style="text-align:left;border-bottom:1px solid rgba(255,255,255,.2);">
-                                    <th style="padding:.4em;">When</th>
-                                    <th style="padding:.4em;">Item</th>
-                                    <th style="padding:.4em;">Type</th>
-                                    <th style="padding:.4em;">Duration</th>
-                                </tr>
-                            </thead>
-                            <tbody id="uaHistoryBody"></tbody>
-                        </table>
+                <header class="ua-header">
+                    <div>
+                        <h1>User Analytics</h1>
+                        <p class="ua-sub">Per-user playback insights from your Jellyfin server.</p>
                     </div>
-                    <div style="flex:1 1 240px;min-width:240px;">
-                        <h3>Top items</h3>
-                        <ol id="uaTopItems" style="padding-left:1.2em;"></ol>
-                    </div>
+                    <button is="emby-button" type="button" id="uaRefresh" class="raised">
+                        <span class="material-icons" aria-hidden="true">refresh</span>
+                        <span>Refresh</span>
+                    </button>
+                </header>
+
+                <section class="ua-kpis" aria-label="Summary">
+                    <div class="ua-kpi"><div class="ua-kpi-label">Total plays</div><div class="ua-kpi-value" id="uaKpiPlays">—</div></div>
+                    <div class="ua-kpi"><div class="ua-kpi-label">Watch time</div><div class="ua-kpi-value" id="uaKpiTime">—</div></div>
+                    <div class="ua-kpi"><div class="ua-kpi-label">Active users</div><div class="ua-kpi-value" id="uaKpiUsers">—</div></div>
+                    <div class="ua-kpi"><div class="ua-kpi-label">Distinct items</div><div class="ua-kpi-value" id="uaKpiItems">—</div></div>
+                </section>
+
+                <div class="ua-grid-2">
+                    <section class="ua-card">
+                        <div class="ua-card-head">
+                            <h2>Plays over time</h2>
+                            <select is="emby-select" class="ua-select" id="uaRange" aria-label="Time range">
+                                <option value="7">Last 7 days</option>
+                                <option value="30" selected>Last 30 days</option>
+                                <option value="90">Last 90 days</option>
+                            </select>
+                        </div>
+                        <div class="ua-canvas-wrap"><canvas id="uaTimelineChart" height="150"></canvas></div>
+                    </section>
+                    <section class="ua-card">
+                        <div class="ua-card-head"><h2>Watch time by type</h2></div>
+                        <div class="ua-canvas-wrap"><canvas id="uaTypeChart" height="150"></canvas></div>
+                    </section>
                 </div>
+
+                <section class="ua-card">
+                    <div class="ua-card-head">
+                        <h2>Users</h2>
+                        <input type="text" class="ua-search" id="uaUserSearch" placeholder="Filter users…" aria-label="Filter users" />
+                    </div>
+                    <div id="uaUsersSpinner" class="ua-spinner">Loading…</div>
+                    <p id="uaUsersEmpty" class="ua-empty" hidden>No playback recorded yet. Play something, or import your watch history below.</p>
+                    <table class="ua-table ua-clickable" id="uaUsersTable" hidden>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th class="ua-num">Plays</th>
+                                <th class="ua-num">Watch time</th>
+                                <th class="ua-num">Items</th>
+                                <th>Last played</th>
+                            </tr>
+                        </thead>
+                        <tbody id="uaUsersBody"></tbody>
+                    </table>
+                </section>
+
+                <section class="ua-card" id="uaUserDetail" hidden>
+                    <div class="ua-card-head">
+                        <h2 id="uaUserDetailName"></h2>
+                        <button is="emby-button" type="button" id="uaCloseDetail" class="raised">
+                            <span class="material-icons" aria-hidden="true">close</span><span>Close</span>
+                        </button>
+                    </div>
+                    <div class="ua-grid-2">
+                        <div>
+                            <h3 class="ua-muted">Plays over time</h3>
+                            <div class="ua-canvas-wrap"><canvas id="uaUserTimelineChart" height="130"></canvas></div>
+                            <h3 class="ua-muted" style="margin-top:1.2em;">Recent history</h3>
+                            <table class="ua-table">
+                                <thead><tr><th>When</th><th>Item</th><th>Type</th><th class="ua-num">Duration</th></tr></thead>
+                                <tbody id="uaHistoryBody"></tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <h3 class="ua-muted">Top items</h3>
+                            <ol class="ua-toplist" id="uaTopItems"></ol>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="ua-card">
+                    <div class="ua-card-head"><h2>Settings</h2></div>
+                    <form id="uaSettingsForm">
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input is="emby-checkbox" type="checkbox" id="uaTrackLive" />
+                                <span>Track live playback</span>
+                            </label>
+                            <div class="fieldDescription checkboxFieldDescription">Record plays as they happen from session events.</div>
+                        </div>
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="uaMinSeconds">Minimum play seconds</label>
+                            <input is="emby-input" type="number" id="uaMinSeconds" min="0" />
+                            <div class="fieldDescription">Ignore plays shorter than this (accidental clicks, quick skips).</div>
+                        </div>
+                        <div class="inputContainer">
+                            <label class="inputLabel inputLabelUnfocused" for="uaRetentionDays">Retention days</label>
+                            <input is="emby-input" type="number" id="uaRetentionDays" min="0" />
+                            <div class="fieldDescription">How long to keep history. 0 keeps it forever.</div>
+                        </div>
+                        <button is="emby-button" type="submit" class="raised button-submit block">
+                            <span>Save</span>
+                        </button>
+                    </form>
+                </section>
+
+                <section class="ua-card">
+                    <div class="ua-card-head"><h2>Import watch history</h2></div>
+                    <p class="ua-note">
+                        Backfill analytics from Jellyfin's own per-user watch history (play counts and
+                        last-played dates), so activity from before this plugin was installed is included.
+                        Watch time for imported plays is estimated from each item's runtime. Re-running
+                        replaces previously imported rows.
+                    </p>
+                    <button is="emby-button" type="button" id="uaImportBtn" class="raised block" style="margin-top:1em;">
+                        <span class="material-icons" aria-hidden="true">history</span>
+                        <span>Import watch history now</span>
+                    </button>
+                    <div id="uaImportResult" class="ua-result ua-muted" role="status" aria-live="polite"></div>
+                </section>
+
             </div>
-
-            <!-- Settings -->
-            <h3 style="margin-top:2em;">Settings</h3>
-            <form id="uaSettingsForm">
-                <div class="inputContainer">
-                    <label class="checkboxContainer">
-                        <input is="emby-checkbox" type="checkbox" id="uaTrackLive" />
-                        <span>Track live playback events</span>
-                    </label>
-                </div>
-                <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="uaMinSeconds">Minimum play seconds</label>
-                    <input is="emby-input" type="number" id="uaMinSeconds" min="0" />
-                    <div class="fieldDescription">Plays shorter than this are ignored.</div>
-                </div>
-                <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="uaRetentionDays">Retention days (0 = keep forever)</label>
-                    <input is="emby-input" type="number" id="uaRetentionDays" min="0" />
-                </div>
-                <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="uaLogPattern">Log playback regex (historical import)</label>
-                    <input is="emby-input" type="text" id="uaLogPattern" />
-                    <div class="fieldDescription">
-                        Best-effort. Must expose named groups <code>item</code> (required),
-                        <code>ms</code> and <code>user</code> (optional).
-                    </div>
-                </div>
-                <button is="emby-button" type="submit" class="raised button-submit block">
-                    <span>Save</span>
-                </button>
-            </form>
-
-            <!-- Historical import -->
-            <h3 style="margin-top:2em;">Import history from logs</h3>
-            <p style="opacity:.7;">
-                Scans the server log files and imports any playback lines it can match. This is
-                best-effort: Jellyfin's log format is not guaranteed and may not include the user
-                or item id, so imported plays can be attributed to a placeholder user. Re-running
-                replaces previously imported rows.
-            </p>
-            <button is="emby-button" type="button" id="uaImportBtn" class="raised block">
-                <span>Import from logs now</span>
-            </button>
-            <div id="uaImportResult" style="margin-top:1em;opacity:.85;"></div>
-
         </div>
     </div>
 
@@ -139,157 +183,180 @@
         (function () {
             var pluginId = '468cb846-bf39-421c-8c60-dfc2f39ee304';
             var page;
-            var timelineChart, typeChart, userTimelineChart;
+            var charts = {};
+            var usersCache = [];
+            var palette = ['#00a4dc', '#aa5cc3', '#52b54b', '#f8a01c', '#e0344b', '#16bdc6', '#8b8b8b'];
 
             function ensureChartJs() {
                 return new Promise(function (resolve) {
-                    if (window.Chart) { resolve(); return; }
+                    if (window.Chart) { return resolve(true); }
                     var s = document.createElement('script');
                     s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
-                    s.onload = function () { resolve(); };
-                    s.onerror = function () { resolve(); }; // charts degrade gracefully
+                    s.onload = function () { resolve(true); };
+                    s.onerror = function () { resolve(false); };
                     document.head.appendChild(s);
                 });
             }
 
+            function $(id) { return page.querySelector('#' + id); }
+            function fmtNumber(n) { return (n || 0).toLocaleString(); }
+
             function fmtDuration(seconds) {
-                seconds = seconds || 0;
+                seconds = Math.round(seconds || 0);
                 var h = Math.floor(seconds / 3600);
                 var m = Math.floor((seconds % 3600) / 60);
+                var s = seconds % 60;
                 if (h > 0) { return h + 'h ' + m + 'm'; }
-                if (m > 0) { return m + 'm'; }
-                return seconds + 's';
+                if (m > 0) { return m + 'm ' + s + 's'; }
+                return s + 's';
             }
 
-            function fmtDate(value) {
-                if (!value) { return '–'; }
+            function fmtWhen(value) {
+                if (!value) { return '—'; }
                 var d = new Date(value);
-                return isNaN(d) ? value : d.toLocaleString();
+                if (isNaN(d)) { return value; }
+                var diff = (Date.now() - d.getTime()) / 1000;
+                if (diff < 60) { return 'just now'; }
+                if (diff < 3600) { return Math.floor(diff / 60) + 'm ago'; }
+                if (diff < 86400) { return Math.floor(diff / 3600) + 'h ago'; }
+                if (diff < 604800) { return Math.floor(diff / 86400) + 'd ago'; }
+                return d.toLocaleDateString();
             }
 
-            function apiGet(path) {
-                return ApiClient.getJSON(ApiClient.getUrl('UserAnalytics/' + path));
+            function itemLabel(r) { return r.SeriesName ? (r.SeriesName + ' · ' + r.ItemName) : r.ItemName; }
+            function apiGet(path) { return ApiClient.getJSON(ApiClient.getUrl('UserAnalytics/' + path)); }
+
+            function lineChart(canvasId, rows, label) {
+                if (!window.Chart) { return; }
+                var ctx = $(canvasId);
+                if (!ctx) { return; }
+                if (charts[canvasId]) { charts[canvasId].destroy(); }
+                charts[canvasId] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: rows.map(function (r) { return (r.Date || '').substring(0, 10); }),
+                        datasets: [{
+                            label: label, data: rows.map(function (r) { return r.PlayCount; }),
+                            borderColor: '#00a4dc', backgroundColor: 'rgba(0,164,220,.18)',
+                            fill: true, tension: .25, pointRadius: 2
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+                });
             }
 
             function loadOverview() {
-                apiGet('Overview').then(function (o) {
-                    page.querySelector('#uaTotalPlays').textContent = o.TotalPlays;
-                    page.querySelector('#uaTotalTime').textContent = fmtDuration(o.TotalPlaySeconds);
-                    page.querySelector('#uaTotalUsers').textContent = o.TotalUsers;
-                    page.querySelector('#uaDistinctItems').textContent = o.DistinctItems;
+                return apiGet('Overview').then(function (o) {
+                    $('uaKpiPlays').textContent = fmtNumber(o.TotalPlays);
+                    $('uaKpiTime').textContent = fmtDuration(o.TotalPlaySeconds);
+                    $('uaKpiUsers').textContent = fmtNumber(o.TotalUsers);
+                    $('uaKpiItems').textContent = fmtNumber(o.DistinctItems);
                 });
             }
 
-            function renderLineChart(existing, canvasId, rows, label) {
-                if (!window.Chart) { return existing; }
-                var ctx = page.querySelector('#' + canvasId);
-                if (!ctx) { return existing; }
-                if (existing) { existing.destroy(); }
-                return new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: rows.map(function (r) { return r.Date.substring(0, 10); }),
-                        datasets: [{
-                            label: label,
-                            data: rows.map(function (r) { return r.PlayCount; }),
-                            borderColor: '#00a4dc',
-                            backgroundColor: 'rgba(0,164,220,.2)',
-                            fill: true,
-                            tension: .25
-                        }]
-                    },
-                    options: { responsive: true, plugins: { legend: { display: false } } }
-                });
+            function loadTimeline() {
+                var days = $('uaRange').value || '30';
+                return apiGet('Timeline?days=' + days).then(function (rows) { lineChart('uaTimelineChart', rows, 'Plays'); });
             }
 
-            function loadGlobalCharts() {
-                apiGet('Timeline?days=30').then(function (rows) {
-                    timelineChart = renderLineChart(timelineChart, 'uaTimelineChart', rows, 'Plays');
-                });
-                apiGet('ByType').then(function (rows) {
+            function loadByType() {
+                return apiGet('ByType').then(function (rows) {
                     if (!window.Chart) { return; }
-                    var ctx = page.querySelector('#uaTypeChart');
-                    if (typeChart) { typeChart.destroy(); }
-                    typeChart = new Chart(ctx, {
+                    var ctx = $('uaTypeChart');
+                    if (charts.uaTypeChart) { charts.uaTypeChart.destroy(); }
+                    charts.uaTypeChart = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
                             labels: rows.map(function (r) { return r.ItemType; }),
-                            datasets: [{
-                                data: rows.map(function (r) { return Math.round(r.TotalPlaySeconds / 60); }),
-                                backgroundColor: ['#00a4dc', '#aa5cc3', '#52b54b', '#f8a01c', '#e0344b', '#888']
-                            }]
+                            datasets: [{ data: rows.map(function (r) { return Math.round(r.TotalPlaySeconds / 60); }),
+                                backgroundColor: palette, borderWidth: 0 }]
                         },
-                        options: { responsive: true, plugins: { tooltip: { callbacks: {
-                            label: function (c) { return c.label + ': ' + c.parsed + ' min'; } } } } }
+                        options: { responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom' },
+                                tooltip: { callbacks: { label: function (c) { return c.label + ': ' + fmtDuration(c.parsed * 60); } } } } }
                     });
+                });
+            }
+
+            function renderUsers(filter) {
+                var body = $('uaUsersBody');
+                var rows = usersCache.filter(function (u) {
+                    return !filter || (u.UserName || '').toLowerCase().indexOf(filter) !== -1;
+                });
+                body.innerHTML = '';
+                rows.forEach(function (u) {
+                    var tr = document.createElement('tr');
+                    tr.tabIndex = 0;
+                    tr.innerHTML =
+                        '<td>' + u.UserName + '</td>' +
+                        '<td class="ua-num">' + fmtNumber(u.PlayCount) + '</td>' +
+                        '<td class="ua-num">' + fmtDuration(u.TotalPlaySeconds) + '</td>' +
+                        '<td class="ua-num">' + fmtNumber(u.DistinctItems) + '</td>' +
+                        '<td>' + fmtWhen(u.LastPlayed) + '</td>';
+                    tr.addEventListener('click', function () { showUser(u); });
+                    tr.addEventListener('keydown', function (e) { if (e.key === 'Enter') { showUser(u); } });
+                    body.appendChild(tr);
                 });
             }
 
             function loadUsers() {
-                apiGet('Users').then(function (users) {
-                    var body = page.querySelector('#uaUsersBody');
-                    body.innerHTML = '';
-                    page.querySelector('#uaUsersEmpty').style.display = users.length ? 'none' : '';
-                    users.forEach(function (u) {
-                        var tr = document.createElement('tr');
-                        tr.style.cursor = 'pointer';
-                        tr.style.borderBottom = '1px solid rgba(255,255,255,.08)';
-                        tr.innerHTML =
-                            '<td style="padding:.4em;">' + u.UserName + '</td>' +
-                            '<td style="padding:.4em;">' + u.PlayCount + '</td>' +
-                            '<td style="padding:.4em;">' + fmtDuration(u.TotalPlaySeconds) + '</td>' +
-                            '<td style="padding:.4em;">' + u.DistinctItems + '</td>' +
-                            '<td style="padding:.4em;">' + fmtDate(u.LastPlayed) + '</td>';
-                        tr.addEventListener('click', function () { showUser(u); });
-                        body.appendChild(tr);
-                    });
+                $('uaUsersSpinner').hidden = false;
+                $('uaUsersTable').hidden = true;
+                $('uaUsersEmpty').hidden = true;
+                return apiGet('Users').then(function (users) {
+                    usersCache = users;
+                    $('uaUsersSpinner').hidden = true;
+                    if (!users.length) { $('uaUsersEmpty').hidden = false; return; }
+                    $('uaUsersTable').hidden = false;
+                    renderUsers(($('uaUserSearch').value || '').toLowerCase());
                 });
             }
 
             function showUser(u) {
-                var detail = page.querySelector('#uaUserDetail');
-                detail.style.display = '';
-                page.querySelector('#uaUserDetailName').textContent = u.UserName;
-                detail.scrollIntoView({ behavior: 'smooth' });
+                var detail = $('uaUserDetail');
+                detail.hidden = false;
+                $('uaUserDetailName').textContent = u.UserName;
+                detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-                apiGet('Timeline?userId=' + u.UserId + '&days=30').then(function (rows) {
-                    userTimelineChart = renderLineChart(userTimelineChart, 'uaUserTimelineChart', rows, 'Plays');
-                });
+                apiGet('Timeline?userId=' + u.UserId + '&days=' + ($('uaRange').value || '30'))
+                    .then(function (rows) { lineChart('uaUserTimelineChart', rows, 'Plays'); });
 
                 apiGet('Users/' + u.UserId + '/TopItems?limit=10').then(function (items) {
-                    var ol = page.querySelector('#uaTopItems');
+                    var ol = $('uaTopItems');
                     ol.innerHTML = '';
-                    items.forEach(function (it) {
+                    if (!items.length) { ol.innerHTML = '<li class="ua-muted">No items yet.</li>'; return; }
+                    items.forEach(function (it, idx) {
                         var li = document.createElement('li');
-                        var name = it.SeriesName ? (it.SeriesName + ' – ' + it.ItemName) : it.ItemName;
-                        li.textContent = name + ' (' + it.PlayCount + '×, ' + fmtDuration(it.TotalPlaySeconds) + ')';
+                        li.innerHTML = '<span class="ua-rank">' + (idx + 1) + '</span>' +
+                            '<span class="ua-toplist-name">' + itemLabel(it) + '</span>' +
+                            '<span class="ua-chip">' + it.PlayCount + '×</span>';
                         ol.appendChild(li);
                     });
                 });
 
                 apiGet('Users/' + u.UserId + '/History?limit=50').then(function (rows) {
-                    var body = page.querySelector('#uaHistoryBody');
+                    var body = $('uaHistoryBody');
                     body.innerHTML = '';
+                    if (!rows.length) { body.innerHTML = '<tr><td colspan="4" class="ua-muted">No history.</td></tr>'; return; }
                     rows.forEach(function (r) {
-                        var name = r.SeriesName ? (r.SeriesName + ' – ' + r.ItemName) : r.ItemName;
                         var tr = document.createElement('tr');
-                        tr.style.borderBottom = '1px solid rgba(255,255,255,.08)';
                         tr.innerHTML =
-                            '<td style="padding:.4em;">' + fmtDate(r.DateCreated) + '</td>' +
-                            '<td style="padding:.4em;">' + name + '</td>' +
-                            '<td style="padding:.4em;">' + r.ItemType + '</td>' +
-                            '<td style="padding:.4em;">' + fmtDuration(r.PlayDurationSeconds) + '</td>';
+                            '<td>' + fmtWhen(r.DateCreated) + '</td>' +
+                            '<td>' + itemLabel(r) + '</td>' +
+                            '<td>' + r.ItemType + '</td>' +
+                            '<td class="ua-num">' + fmtDuration(r.PlayDurationSeconds) + '</td>';
                         body.appendChild(tr);
                     });
                 });
             }
 
             function loadConfig() {
-                ApiClient.getPluginConfiguration(pluginId).then(function (cfg) {
-                    page.querySelector('#uaTrackLive').checked = cfg.TrackLivePlayback;
-                    page.querySelector('#uaMinSeconds').value = cfg.MinimumPlaySeconds;
-                    page.querySelector('#uaRetentionDays').value = cfg.RetentionDays;
-                    page.querySelector('#uaLogPattern').value = cfg.LogPlaybackPattern || '';
+                return ApiClient.getPluginConfiguration(pluginId).then(function (cfg) {
+                    $('uaTrackLive').checked = cfg.TrackLivePlayback;
+                    $('uaMinSeconds').value = cfg.MinimumPlaySeconds;
+                    $('uaRetentionDays').value = cfg.RetentionDays;
                 });
             }
 
@@ -297,10 +364,9 @@
                 e.preventDefault();
                 Dashboard.showLoadingMsg();
                 ApiClient.getPluginConfiguration(pluginId).then(function (cfg) {
-                    cfg.TrackLivePlayback = page.querySelector('#uaTrackLive').checked;
-                    cfg.MinimumPlaySeconds = parseInt(page.querySelector('#uaMinSeconds').value, 10) || 0;
-                    cfg.RetentionDays = parseInt(page.querySelector('#uaRetentionDays').value, 10) || 0;
-                    cfg.LogPlaybackPattern = page.querySelector('#uaLogPattern').value;
+                    cfg.TrackLivePlayback = $('uaTrackLive').checked;
+                    cfg.MinimumPlaySeconds = parseInt($('uaMinSeconds').value, 10) || 0;
+                    cfg.RetentionDays = parseInt($('uaRetentionDays').value, 10) || 0;
                     ApiClient.updatePluginConfiguration(pluginId, cfg).then(function (r) {
                         Dashboard.processPluginConfigurationUpdateResult(r);
                     });
@@ -308,46 +374,35 @@
                 return false;
             }
 
-            function importLogs() {
-                var btn = page.querySelector('#uaImportBtn');
-                var out = page.querySelector('#uaImportResult');
+            function importHistory() {
+                var btn = $('uaImportBtn');
+                var out = $('uaImportResult');
                 btn.disabled = true;
-                out.textContent = 'Scanning logs…';
-                ApiClient.ajax({
-                    type: 'POST',
-                    url: ApiClient.getUrl('UserAnalytics/Import/Logs'),
-                    dataType: 'json'
-                }).then(function (res) {
-                    out.textContent = res.Message;
-                    btn.disabled = false;
-                    loadOverview();
-                    loadGlobalCharts();
-                    loadUsers();
-                }).catch(function () {
-                    out.textContent = 'Import failed. See the server log for details.';
-                    btn.disabled = false;
-                });
+                out.textContent = 'Importing from watch history…';
+                ApiClient.ajax({ type: 'POST', url: ApiClient.getUrl('UserAnalytics/Import/WatchHistory'), dataType: 'json' })
+                    .then(function (res) { out.textContent = res.Message; btn.disabled = false; refreshData(); })
+                    .catch(function () { out.textContent = 'Import failed. See the server log for details.'; btn.disabled = false; });
             }
 
-            function refreshAll() {
-                loadOverview();
-                loadGlobalCharts();
-                loadUsers();
+            function refreshData() {
+                return Promise.all([loadOverview(), loadTimeline(), loadByType(), loadUsers()]);
             }
 
-            document.querySelector('#userAnalyticsConfigPage')
-                .addEventListener('pageshow', function () {
-                    page = this;
-                    Dashboard.showLoadingMsg();
-                    loadConfig();
-                    ensureChartJs().then(function () {
-                        refreshAll();
-                        Dashboard.hideLoadingMsg();
-                    });
-
-                    page.querySelector('#uaSettingsForm').addEventListener('submit', saveConfig);
-                    page.querySelector('#uaImportBtn').addEventListener('click', importLogs);
+            document.querySelector('#userAnalyticsConfigPage').addEventListener('pageshow', function () {
+                page = this;
+                Dashboard.showLoadingMsg();
+                loadConfig();
+                ensureChartJs().then(function () {
+                    refreshData().then(function () { Dashboard.hideLoadingMsg(); });
                 });
+
+                $('uaSettingsForm').addEventListener('submit', saveConfig);
+                $('uaImportBtn').addEventListener('click', importHistory);
+                $('uaRefresh').addEventListener('click', refreshData);
+                $('uaCloseDetail').addEventListener('click', function () { $('uaUserDetail').hidden = true; });
+                $('uaRange').addEventListener('change', loadTimeline);
+                $('uaUserSearch').addEventListener('input', function () { renderUsers((this.value || '').toLowerCase()); });
+            });
         })();
     </script>
 </div>

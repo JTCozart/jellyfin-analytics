@@ -15,7 +15,7 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
     public void RegisterServices(IServiceCollection serviceCollection, IServerApplicationHost applicationHost)
     {
         serviceCollection.AddSingleton<IPlaybackRepository, SqlitePlaybackRepository>();
-        serviceCollection.AddSingleton<LogImportService>();
+        serviceCollection.AddSingleton<WatchHistoryImportService>();
         serviceCollection.AddHostedService<PlaybackTrackingService>();
     }
 }

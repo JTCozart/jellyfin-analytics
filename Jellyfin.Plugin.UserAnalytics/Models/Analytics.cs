@@ -71,14 +71,14 @@ public class OverviewStats
 }
 
 /// <summary>
-/// Result of a historical log import.
+/// Result of a historical import from Jellyfin's per-user watch history.
 /// </summary>
-public class LogImportResult
+public class ImportResult
 {
     /// <summary>
-    /// Gets or sets the number of log files scanned.
+    /// Gets or sets the number of users scanned.
     /// </summary>
-    public int FilesScanned { get; set; }
+    public int UsersScanned { get; set; }
 
     /// <summary>
     /// Gets or sets the number of playback rows imported.
