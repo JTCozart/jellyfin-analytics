@@ -44,8 +44,11 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     {
         yield return new PluginPageInfo
         {
-            Name = Name,
+            Name = "useranalytics",
+            DisplayName = "User Analytics",
             EmbeddedResourcePath = $"{GetType().Namespace}.Configuration.configPage.html",
+            EnableInMainMenu = true,
+            MenuIcon = "analytics",
         };
     }
 }
