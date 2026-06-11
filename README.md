@@ -83,10 +83,19 @@ Continuous integration builds the plugin on every push/PR via
 [`.github/workflows/build.yaml`](.github/workflows/build.yaml), which delegates to
 Jellyfin's shared meta-plugins workflow.
 
-To cut a release, publish a GitHub Release whose tag is the plugin version (e.g.
-`1.0.0.0`). [`.github/workflows/release.yaml`](.github/workflows/release.yaml) uses
-[JPRM](https://github.com/oddstr13/jellyfin-plugin-repository-manager) to package the
-plugin and attaches the resulting `.zip` to the release.
+To cut a release, push a **timestamp tag** of the form `vYYYYMMDD.HHMM`:
+
+```sh
+git tag v$(date +%Y%m%d.%H%M)
+git push origin --tags
+```
+
+[`.github/workflows/release.yaml`](.github/workflows/release.yaml) maps the tag to a 4-part
+Jellyfin plugin version `YYYY.M.D.HHMM` (e.g. `v20260611.1430` → `2026.6.11.1430`). Because
+the version is the timestamp, each release is strictly newer than the last, so Jellyfin
+always recognizes it as an update. The workflow uses
+[JPRM](https://github.com/oddstr13/jellyfin-plugin-repository-manager) to package the plugin,
+creates a GitHub Release for the tag and attaches the resulting `.zip`.
 
 ## Requirements
 

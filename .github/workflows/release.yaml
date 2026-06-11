@@ -1,22 +1,24 @@
 name: '🚀 Release Plugin'
 
-# Builds the plugin with JPRM (the official Jellyfin Plugin Repository Manager), creates a
-# GitHub Release for the pushed tag and attaches the packaged plugin zip to it.
+# Cut a release by pushing a timestamp tag of the form vYYYYMMDD.HHMM, e.g.:
+#   git tag v20260611.1430 && git push origin v20260611.1430
 #
-# To cut a release, push a tag named after the plugin version, e.g.:
-#   git tag v1.0.0.0 && git push origin v1.0.0.0
-# (a leading "v" is optional and stripped). You can also run it manually from the Actions
-# tab via workflow_dispatch.
+# The tag is mapped to a 4-part Jellyfin plugin version YYYY.M.D.HHMM (e.g.
+# 2026.6.11.1430). Because the version is the timestamp, every new tag is strictly
+# greater than the previous one, so Jellyfin always treats it as a newer build.
+# The workflow builds with JPRM, creates a GitHub Release for the tag and attaches
+# the packaged plugin zip. You can also run it manually (workflow_dispatch) with an
+# explicit 4-part version.
 
 on:
   push:
     tags:
-      - 'v*'
-      - '[0-9]+.[0-9]+.[0-9]+*'
+      # vYYYYMMDD.HHMM  (8 digits, a dot, 4 digits)
+      - 'v[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].[0-9][0-9][0-9][0-9]'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Plugin version (e.g. 1.0.0.0)'
+        description: 'Explicit 4-part version (e.g. 2026.6.11.1430)'
         required: true
 
 permissions:
@@ -45,13 +47,24 @@ jobs:
       - name: Resolve version
         id: ver
         run: |
+          set -euo pipefail
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             VERSION="${{ github.event.inputs.version }}"
           else
-            VERSION="${{ github.ref_name }}"
+            TAG="${{ github.ref_name }}"
+            TS="${TAG#v}"
+            if [[ ! "$TS" =~ ^[0-9]{8}\.[0-9]{4}$ ]]; then
+              echo "::error::Tag '$TAG' is not of the form vYYYYMMDD.HHMM"
+              exit 1
+            fi
+            DATE="${TS%.*}"   # YYYYMMDD
+            TIME="${TS#*.}"   # HHMM
+            YEAR="${DATE:0:4}"
+            MONTH=$((10#${DATE:4:2}))
+            DAY=$((10#${DATE:6:2}))
+            HHMM=$((10#${TIME}))
+            VERSION="${YEAR}.${MONTH}.${DAY}.${HHMM}"
           fi
-          # strip a leading "v" if present
-          VERSION="${VERSION#v}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Resolved plugin version: ${VERSION}"
 
