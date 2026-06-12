@@ -38,12 +38,12 @@ public interface IPlaybackRepository
     IReadOnlyList<PlayHistoryEntry> GetPlayHistory(Guid userId, int limit, int offset);
 
     /// <summary>
-    /// Gets a user's most-played items.
+    /// Gets the most-played items, optionally scoped to a single user.
     /// </summary>
-    /// <param name="userId">The user id.</param>
+    /// <param name="userId">The user id, or <c>null</c> for all users.</param>
     /// <param name="limit">Maximum items to return.</param>
     /// <returns>The top items.</returns>
-    IReadOnlyList<TopItemEntry> GetTopItems(Guid userId, int limit);
+    IReadOnlyList<TopItemEntry> GetTopItems(Guid? userId, int limit);
 
     /// <summary>
     /// Gets server-wide totals.
@@ -52,12 +52,13 @@ public interface IPlaybackRepository
     OverviewStats GetOverview();
 
     /// <summary>
-    /// Gets per-day plays/watch time over the last <paramref name="days"/> days.
+    /// Gets per-day plays/watch time between two UTC dates.
     /// </summary>
     /// <param name="userId">The user id, or <c>null</c> for all users.</param>
-    /// <param name="days">Number of days to look back.</param>
+    /// <param name="from">Start of the range (inclusive, UTC date).</param>
+    /// <param name="to">End of the range (exclusive, UTC date).</param>
     /// <returns>The daily activity, oldest first.</returns>
-    IReadOnlyList<DailyActivityEntry> GetDailyActivity(Guid? userId, int days);
+    IReadOnlyList<DailyActivityEntry> GetDailyActivity(Guid? userId, DateTime from, DateTime to);
 
     /// <summary>
     /// Gets plays/watch time grouped by item type.
@@ -65,6 +66,13 @@ public interface IPlaybackRepository
     /// <param name="userId">The user id, or <c>null</c> for all users.</param>
     /// <returns>The per-type activity.</returns>
     IReadOnlyList<TypeActivityEntry> GetActivityByType(Guid? userId);
+
+    /// <summary>
+    /// Gets plays/watch time grouped by play method (DirectPlay, Transcode, etc.).
+    /// </summary>
+    /// <param name="userId">The user id, or <c>null</c> for all users.</param>
+    /// <returns>The per-method activity.</returns>
+    IReadOnlyList<PlayMethodEntry> GetActivityByPlayMethod(Guid? userId);
 
     /// <summary>
     /// Bulk-inserts imported records, first removing any previously imported rows from the

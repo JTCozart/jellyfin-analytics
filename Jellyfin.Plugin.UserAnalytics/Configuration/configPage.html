@@ -45,8 +45,10 @@
         .ua-note { background: rgba(0,164,220,.08); border: 1px solid rgba(0,164,220,.25); border-radius: 8px; padding: .8em 1em; font-size: .9em; }
         .ua-result { margin-top: 1em; min-height: 1.2em; }
         .ua-canvas-wrap { position: relative; min-height: 180px; }
-        select.ua-select { background: rgba(127,127,127,.12); color: inherit; border: 1px solid rgba(127,127,127,.3); border-radius: 6px; padding: .3em .6em; }
+        select.ua-select, input.ua-date { background: rgba(127,127,127,.12); color: inherit; border: 1px solid rgba(127,127,127,.3); border-radius: 6px; padding: .3em .6em; }
         input.ua-search { background: rgba(127,127,127,.12); color: inherit; border: 1px solid rgba(127,127,127,.3); border-radius: 6px; padding: .4em .7em; min-width: 200px; }
+        input.ua-date { width: 8em; }
+        .ua-range-controls { display: flex; align-items: center; gap: .5em; flex-wrap: wrap; }
     </style>
 
     <div data-role="content">
@@ -75,17 +77,35 @@
                     <section class="ua-card">
                         <div class="ua-card-head">
                             <h2>Plays over time</h2>
-                            <select is="emby-select" class="ua-select" id="uaRange" aria-label="Time range">
-                                <option value="7">Last 7 days</option>
-                                <option value="30" selected>Last 30 days</option>
-                                <option value="90">Last 90 days</option>
-                            </select>
+                            <div class="ua-range-controls">
+                                <select is="emby-select" class="ua-select" id="uaRange" aria-label="Quick range">
+                                    <option value="7">Last 7 days</option>
+                                    <option value="30" selected>Last 30 days</option>
+                                    <option value="90">Last 90 days</option>
+                                    <option value="0">Custom</option>
+                                </select>
+                                <input type="date" class="ua-date" id="uaFrom" aria-label="From date" />
+                                <span class="ua-muted">–</span>
+                                <input type="date" class="ua-date" id="uaTo" aria-label="To date" />
+                            </div>
                         </div>
                         <div class="ua-canvas-wrap"><canvas id="uaTimelineChart" height="150"></canvas></div>
                     </section>
                     <section class="ua-card">
                         <div class="ua-card-head"><h2>Watch time by type</h2></div>
                         <div class="ua-canvas-wrap"><canvas id="uaTypeChart" height="150"></canvas></div>
+                    </section>
+                </div>
+
+                <div class="ua-grid-2" style="grid-template-columns: 1fr 2fr;">
+                    <section class="ua-card">
+                        <div class="ua-card-head"><h2>Play method</h2></div>
+                        <div class="ua-canvas-wrap"><canvas id="uaPlayMethodChart" height="150"></canvas></div>
+                    </section>
+                    <section class="ua-card">
+                        <div class="ua-card-head"><h2>Top content</h2></div>
+                        <div id="uaTopContentSpinner" class="ua-spinner">Loading…</div>
+                        <ol class="ua-toplist" id="uaTopContent" hidden></ol>
                     </section>
                 </div>
 
@@ -256,9 +276,22 @@
                 });
             }
 
+            function initDateRange() {
+                var to = new Date();
+                var from = new Date();
+                from.setDate(from.getDate() - 30);
+                $('uaTo').value = to.toISOString().substring(0, 10);
+                $('uaFrom').value = from.toISOString().substring(0, 10);
+            }
+
+            function timelineParams() {
+                var from = $('uaFrom').value;
+                var to = $('uaTo').value;
+                return from && to ? 'from=' + from + '&to=' + to : 'days=' + ($('uaRange').value || '30');
+            }
+
             function loadTimeline() {
-                var days = $('uaRange').value || '30';
-                return apiGet('Timeline?days=' + days).then(function (rows) { lineChart('uaTimelineChart', rows, 'Plays'); });
+                return apiGet('Timeline?' + timelineParams()).then(function (rows) { lineChart('uaTimelineChart', rows, 'Plays'); });
             }
 
             function loadByType() {
@@ -277,6 +310,59 @@
                             plugins: { legend: { position: 'bottom' },
                                 tooltip: { callbacks: { label: function (c) { return c.label + ': ' + fmtDuration(c.parsed * 60); } } } } }
                     });
+                });
+            }
+
+            function loadByPlayMethod() {
+                return apiGet('ByPlayMethod').then(function (rows) {
+                    if (!window.Chart) { return; }
+                    var ctx = $('uaPlayMethodChart');
+                    if (charts.uaPlayMethodChart) { charts.uaPlayMethodChart.destroy(); }
+                    charts.uaPlayMethodChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: rows.map(function (r) { return r.PlayMethod || 'Unknown'; }),
+                            datasets: [{
+                                data: rows.map(function (r) { return r.PlayCount; }),
+                                backgroundColor: palette,
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { callbacks: { label: function (c) { return ' ' + fmtNumber(c.parsed.x) + ' plays'; } } }
+                            },
+                            scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+                        }
+                    });
+                });
+            }
+
+            function loadTopContent() {
+                var spinner = $('uaTopContentSpinner');
+                var ol = $('uaTopContent');
+                spinner.hidden = false;
+                ol.hidden = true;
+                return apiGet('TopItems?limit=10').then(function (items) {
+                    spinner.hidden = true;
+                    ol.innerHTML = '';
+                    if (!items.length) {
+                        ol.innerHTML = '<li class="ua-muted" style="padding:.5em 0">No plays recorded yet.</li>';
+                    } else {
+                        items.forEach(function (it, idx) {
+                            var li = document.createElement('li');
+                            li.innerHTML = '<span class="ua-rank">' + (idx + 1) + '</span>' +
+                                '<span class="ua-toplist-name">' + itemLabel(it) + '</span>' +
+                                '<span class="ua-chip ua-muted" style="font-size:.75em;margin-right:.4em">' + it.ItemType + '</span>' +
+                                '<span class="ua-chip">' + it.PlayCount + '×</span>';
+                            ol.appendChild(li);
+                        });
+                    }
+                    ol.hidden = false;
                 });
             }
 
@@ -320,7 +406,7 @@
                 $('uaUserDetailName').textContent = u.UserName;
                 detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-                apiGet('Timeline?userId=' + u.UserId + '&days=' + ($('uaRange').value || '30'))
+                apiGet('Timeline?' + timelineParams() + '&userId=' + u.UserId)
                     .then(function (rows) { lineChart('uaUserTimelineChart', rows, 'Plays'); });
 
                 apiGet('Users/' + u.UserId + '/TopItems?limit=10').then(function (items) {
@@ -385,13 +471,14 @@
             }
 
             function refreshData() {
-                return Promise.all([loadOverview(), loadTimeline(), loadByType(), loadUsers()]);
+                return Promise.all([loadOverview(), loadTimeline(), loadByType(), loadByPlayMethod(), loadTopContent(), loadUsers()]);
             }
 
             document.querySelector('#userAnalyticsConfigPage').addEventListener('pageshow', function () {
                 page = this;
                 Dashboard.showLoadingMsg();
                 loadConfig();
+                initDateRange();
                 ensureChartJs().then(function () {
                     refreshData().then(function () { Dashboard.hideLoadingMsg(); });
                 });
@@ -400,7 +487,19 @@
                 $('uaImportBtn').addEventListener('click', importHistory);
                 $('uaRefresh').addEventListener('click', refreshData);
                 $('uaCloseDetail').addEventListener('click', function () { $('uaUserDetail').hidden = true; });
-                $('uaRange').addEventListener('change', loadTimeline);
+                $('uaRange').addEventListener('change', function () {
+                    var days = parseInt(this.value, 10);
+                    if (days > 0) {
+                        var to = new Date();
+                        var from = new Date();
+                        from.setDate(from.getDate() - days);
+                        $('uaTo').value = to.toISOString().substring(0, 10);
+                        $('uaFrom').value = from.toISOString().substring(0, 10);
+                    }
+                    loadTimeline();
+                });
+                $('uaFrom').addEventListener('change', function () { $('uaRange').value = '0'; loadTimeline(); });
+                $('uaTo').addEventListener('change', function () { $('uaRange').value = '0'; loadTimeline(); });
                 $('uaUserSearch').addEventListener('input', function () { renderUsers((this.value || '').toLowerCase()); });
             });
         })();

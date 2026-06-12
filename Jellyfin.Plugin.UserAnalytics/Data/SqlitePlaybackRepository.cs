@@ -221,17 +221,17 @@ LIMIT $limit OFFSET $offset;";
     }
 
     /// <inheritdoc />
-    public IReadOnlyList<TopItemEntry> GetTopItems(Guid userId, int limit)
+    public IReadOnlyList<TopItemEntry> GetTopItems(Guid? userId, int limit)
     {
-        const string Sql = @"
+        var sql = @"
 SELECT ItemId,
        MAX(ItemName)   AS ItemName,
        MAX(ItemType)   AS ItemType,
        MAX(SeriesName) AS SeriesName,
        COUNT(*)        AS PlayCount,
        COALESCE(SUM(PlayDurationSeconds), 0) AS TotalPlaySeconds
-FROM PlaybackActivity
-WHERE UserId = $userId
+FROM PlaybackActivity"
+            + (userId.HasValue ? " WHERE UserId = $userId" : string.Empty) + @"
 GROUP BY ItemId
 ORDER BY PlayCount DESC, TotalPlaySeconds DESC
 LIMIT $limit;";
@@ -240,8 +240,12 @@ LIMIT $limit;";
         lock (_lock)
         {
             using var cmd = _connection.CreateCommand();
-            cmd.CommandText = Sql;
-            cmd.Parameters.AddWithValue("$userId", userId.ToString("N"));
+            cmd.CommandText = sql;
+            if (userId.HasValue)
+            {
+                cmd.Parameters.AddWithValue("$userId", userId.Value.ToString("N"));
+            }
+
             cmd.Parameters.AddWithValue("$limit", limit);
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
@@ -292,19 +296,15 @@ FROM PlaybackActivity;";
     }
 
     /// <inheritdoc />
-    public IReadOnlyList<DailyActivityEntry> GetDailyActivity(Guid? userId, int days)
+    public IReadOnlyList<DailyActivityEntry> GetDailyActivity(Guid? userId, DateTime from, DateTime to)
     {
-        if (days <= 0)
-        {
-            days = 30;
-        }
-
         var sql = @"
 SELECT substr(DateCreated, 1, 10) AS Day,
        COUNT(*)                    AS PlayCount,
        COALESCE(SUM(PlayDurationSeconds), 0) AS TotalPlaySeconds
 FROM PlaybackActivity
-WHERE DateCreated >= $cutoff" + (userId.HasValue ? " AND UserId = $userId" : string.Empty) + @"
+WHERE DateCreated >= $from AND DateCreated < $to"
+            + (userId.HasValue ? " AND UserId = $userId" : string.Empty) + @"
 GROUP BY Day
 ORDER BY Day ASC;";
 
@@ -313,7 +313,8 @@ ORDER BY Day ASC;";
         {
             using var cmd = _connection.CreateCommand();
             cmd.CommandText = sql;
-            cmd.Parameters.AddWithValue("$cutoff", ToIso(DateTime.UtcNow.Date.AddDays(-days)));
+            cmd.Parameters.AddWithValue("$from", ToIso(from));
+            cmd.Parameters.AddWithValue("$to", ToIso(to));
             if (userId.HasValue)
             {
                 cmd.Parameters.AddWithValue("$userId", userId.Value.ToString("N"));
@@ -325,6 +326,43 @@ ORDER BY Day ASC;";
                 results.Add(new DailyActivityEntry
                 {
                     Date = DateTime.Parse(reader.GetString(0), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal),
+                    PlayCount = reader.GetInt64(1),
+                    TotalPlaySeconds = reader.GetInt64(2),
+                });
+            }
+        }
+
+        return results;
+    }
+
+    /// <inheritdoc />
+    public IReadOnlyList<PlayMethodEntry> GetActivityByPlayMethod(Guid? userId)
+    {
+        var sql = @"
+SELECT PlayMethod,
+       COUNT(*) AS PlayCount,
+       COALESCE(SUM(PlayDurationSeconds), 0) AS TotalPlaySeconds
+FROM PlaybackActivity"
+            + (userId.HasValue ? " WHERE UserId = $userId" : string.Empty) + @"
+GROUP BY PlayMethod
+ORDER BY PlayCount DESC;";
+
+        var results = new List<PlayMethodEntry>();
+        lock (_lock)
+        {
+            using var cmd = _connection.CreateCommand();
+            cmd.CommandText = sql;
+            if (userId.HasValue)
+            {
+                cmd.Parameters.AddWithValue("$userId", userId.Value.ToString("N"));
+            }
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                results.Add(new PlayMethodEntry
+                {
+                    PlayMethod = reader.GetString(0),
                     PlayCount = reader.GetInt64(1),
                     TotalPlaySeconds = reader.GetInt64(2),
                 });

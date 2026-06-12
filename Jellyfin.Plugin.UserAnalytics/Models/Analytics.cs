@@ -71,6 +71,27 @@ public class OverviewStats
 }
 
 /// <summary>
+/// Plays and watch time grouped by play method (DirectPlay, Transcode, DirectStream, etc.).
+/// </summary>
+public class PlayMethodEntry
+{
+    /// <summary>
+    /// Gets or sets the play method label.
+    /// </summary>
+    public string PlayMethod { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the number of plays using this method.
+    /// </summary>
+    public long PlayCount { get; set; }
+
+    /// <summary>
+    /// Gets or sets the total watch time for this method, in seconds.
+    /// </summary>
+    public long TotalPlaySeconds { get; set; }
+}
+
+/// <summary>
 /// Result of a historical import from Jellyfin's per-user watch history.
 /// </summary>
 public class ImportResult
