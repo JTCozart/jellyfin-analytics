@@ -6,6 +6,7 @@
         "overview": "Per-user playback analytics: play history, play counts and watch time.",
         "owner": "jtczrt",
         "category": "General",
+        "imageUrl": "https://jtcozart.github.io/jellyfin-analytics/assets/user_analytics_ss1.png",
         "versions": [
             {
                 "version": "2026.6.12.1433",
