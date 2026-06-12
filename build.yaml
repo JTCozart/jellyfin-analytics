@@ -15,7 +15,5 @@ artifacts:
   - "Jellyfin.Plugin.UserAnalytics.dll"
 changelog: >
   ### 2026.6.12
-  - Add play method breakdown chart (DirectPlay vs Transcode vs DirectStream)
-  - Add date range picker to the plays-over-time chart
-  - Add server-wide top content card
-  - Fix plugin version not displaying correctly in Jellyfin settings
+  - Fix play method always showing as Unknown in the play method chart
+  - Add option to cap watch time to item runtime (prevents pause time inflating watch time)
