@@ -8,6 +8,14 @@
         "category": "General",
         "versions": [
             {
+                "version": "2026.6.12.1415",
+                "changelog": "### 2026.6.12 - Add play method breakdown chart (DirectPlay vs Transcode vs DirectStream) - Add date range picker to the plays-over-time chart - Add server-wide top content card - Fix plugin version not displaying correctly in Jellyfin settings\n",
+                "targetAbi": "10.11.0.0",
+                "sourceUrl": "https://github.com/JTCozart/jellyfin-analytics/releases/download/v20260612.1415/user-analytics_2026.6.12.1415.zip",
+                "checksum": "351b96a580fe8fbba00ec613bf7457b2",
+                "timestamp": "2026-06-12T14:16:21Z"
+            },
+            {
                 "version": "2026.6.12.1413",
                 "changelog": "### 2026.6.12.1413 - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.\n",
                 "targetAbi": "10.11.0.0",
