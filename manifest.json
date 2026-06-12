@@ -9,7 +9,7 @@
         "versions": [
             {
                 "version": "2026.6.12.1413",
-                "changelog": "### 1.0.0.0 - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.\n",
+                "changelog": "### 2026.6.12.1413 - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.\n",
                 "targetAbi": "10.11.0.0",
                 "sourceUrl": "https://github.com/JTCozart/jellyfin-analytics/releases/download/v20260612.1413/user-analytics_2026.6.12.1413.zip",
                 "checksum": "d8e6f71f3fc4f96cf998da672dcc01e3",
@@ -17,7 +17,7 @@
             },
             {
                 "version": "2026.6.12.1409",
-                "changelog": "### 1.0.0.0 - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.\n",
+                "changelog": "### 2026.6.12.1409 - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.\n",
                 "targetAbi": "10.11.0.0",
                 "sourceUrl": "https://github.com/JTCozart/jellyfin-analytics/releases/download/v20260612.1409/user-analytics_2026.6.12.1409.zip",
                 "checksum": "d9beeca9b554431947787700393ec5af",
@@ -25,7 +25,7 @@
             },
             {
                 "version": "2026.6.11.1153",
-                "changelog": "### 1.0.0.0 - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.\n",
+                "changelog": "### 2026.6.11.1153 - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.\n",
                 "targetAbi": "10.11.0.0",
                 "sourceUrl": "https://github.com/JTCozart/jellyfin-analytics/releases/download/v20260611.1153/user-analytics_2026.6.11.1153.zip",
                 "checksum": "1e0e41483247113244cfd58c4e7d7532",
