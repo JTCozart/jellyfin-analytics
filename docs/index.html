@@ -83,25 +83,16 @@
 
   /* Browser-framed screenshot */
   .shot { margin: 34px auto 0; max-width: 980px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0,0,0,.5); background: var(--bg2); }
-  .shot .bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #0e1219; border-bottom: 1px solid var(--line); }
-  .shot .dot { width: 11px; height: 11px; border-radius: 50%; }
-  .shot .addr { margin-left: 10px; flex: 1; font-size: .78rem; color: var(--muted); background: #0b0e13; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; }
-  .shot .body { padding: 18px; }
-
-  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
-  .kpi .l { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; }
-  .kpi .v { font-size: 1.6rem; font-weight: 700; margin-top: 2px; }
-  .panels { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-top: 14px; }
-  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
-  .panel h4 { margin: 0 0 8px; font-size: .9rem; color: var(--muted); font-weight: 600; }
-  table.mini { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: 12px; }
-  table.mini th, table.mini td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); }
-  table.mini th { color: var(--muted); font-weight: 600; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; }
-  table.mini td.n, table.mini th.n { text-align: right; font-variant-numeric: tabular-nums; }
-  .legend { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; font-size: .82rem; }
-  .legend .row { display: flex; align-items: center; gap: 8px; }
-  .legend .sw { width: 10px; height: 10px; border-radius: 3px; }
+  .carousel { position: relative; overflow: hidden; background: var(--bg2); line-height: 0; }
+  .carousel-track { display: flex; transition: transform .35s ease; }
+  .carousel-slide { min-width: 100%; width: 100%; display: block; }
+  .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,.55); border: 1px solid var(--line); color: #fff; border-radius: 50%; width: 38px; height: 38px; font-size: 1.5rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; transition: background .2s, border-color .2s; }
+  .carousel-prev { left: 12px; }
+  .carousel-next { right: 12px; }
+  .carousel-btn:hover { background: rgba(0,164,220,.7); border-color: var(--accent); }
+  .carousel-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 7px; z-index: 2; }
+  .dot-btn { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.35); border: none; cursor: pointer; padding: 0; transition: background .2s; }
+  .dot-btn.active { background: var(--accent); }
 
   section.block { padding: 56px 0; }
   section.block h2 { font-size: 1.8rem; text-align: center; margin: 0 0 8px; }
@@ -159,59 +150,20 @@
       <span class="pill">MIT licensed</span>
     </div>
 
-    <!-- Faux dashboard screenshot -->
-    <div class="shot" role="img" aria-label="Screenshot of the User Analytics dashboard">
-      <div class="bar">
-        <span class="dot" style="background:#ff5f57"></span>
-        <span class="dot" style="background:#febc2e"></span>
-        <span class="dot" style="background:#28c840"></span>
-        <span class="addr">jellyfin · Dashboard › User Analytics</span>
-      </div>
-      <div class="body">
-        <div class="kpis">
-          <div class="kpi"><div class="l">Total plays</div><div class="v">1,284</div></div>
-          <div class="kpi"><div class="l">Watch time</div><div class="v">412h 9m</div></div>
-          <div class="kpi"><div class="l">Active users</div><div class="v">6</div></div>
-          <div class="kpi"><div class="l">Distinct items</div><div class="v">317</div></div>
+    <!-- Screenshot carousel -->
+    <div class="shot" role="region" aria-label="User Analytics screenshots">
+      <div class="carousel">
+        <div class="carousel-track" id="carouselTrack">
+          <img class="carousel-slide" src="assets/user_analytics_ss1.png" alt="User Analytics dashboard overview" />
+          <img class="carousel-slide" src="assets/user_analytics_ss2.png" alt="User Analytics play history" />
+          <img class="carousel-slide" src="assets/user_analytics_ss3.png" alt="User Analytics user drilldown" />
         </div>
-        <div class="panels">
-          <div class="panel">
-            <h4>Plays over time · last 30 days</h4>
-            <svg viewBox="0 0 520 150" width="100%" height="150" preserveAspectRatio="none" aria-hidden="true">
-              <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="rgba(0,164,220,.45)"/><stop offset="1" stop-color="rgba(0,164,220,0)"/>
-              </linearGradient></defs>
-              <path d="M0,120 L40,110 L80,118 L120,90 L160,98 L200,70 L240,80 L280,55 L320,66 L360,40 L400,52 L440,30 L480,44 L520,22 L520,150 L0,150 Z" fill="url(#g)"/>
-              <path d="M0,120 L40,110 L80,118 L120,90 L160,98 L200,70 L240,80 L280,55 L320,66 L360,40 L400,52 L440,30 L480,44 L520,22" fill="none" stroke="#00a4dc" stroke-width="2.5"/>
-            </svg>
-          </div>
-          <div class="panel">
-            <h4>Watch time by type</h4>
-            <div style="display:flex; align-items:center; gap:14px;">
-              <svg viewBox="0 0 42 42" width="110" height="110" aria-hidden="true">
-                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#00a4dc" stroke-width="9" stroke-dasharray="55 45" stroke-dashoffset="25"/>
-                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#aa5cc3" stroke-width="9" stroke-dasharray="28 72" stroke-dashoffset="-30"/>
-                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#52b54b" stroke-width="9" stroke-dasharray="17 83" stroke-dashoffset="-58"/>
-              </svg>
-              <div class="legend">
-                <div class="row"><span class="sw" style="background:#00a4dc"></span> Episode · 248h</div>
-                <div class="row"><span class="sw" style="background:#aa5cc3"></span> Movie · 126h</div>
-                <div class="row"><span class="sw" style="background:#52b54b"></span> Audio · 38h</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="panel" style="margin-top:14px;">
-          <h4>Users</h4>
-          <table class="mini">
-            <thead><tr><th>User</th><th class="n">Plays</th><th class="n">Watch time</th><th class="n">Items</th><th>Last played</th></tr></thead>
-            <tbody>
-              <tr><td>alice</td><td class="n">512</td><td class="n">168h 22m</td><td class="n">141</td><td>2h ago</td></tr>
-              <tr><td>bob</td><td class="n">347</td><td class="n">119h 4m</td><td class="n">96</td><td>1d ago</td></tr>
-              <tr><td>carol</td><td class="n">228</td><td class="n">74h 51m</td><td class="n">58</td><td>3d ago</td></tr>
-              <tr><td>dave</td><td class="n">197</td><td class="n">49h 52m</td><td class="n">22</td><td>5d ago</td></tr>
-            </tbody>
-          </table>
+        <button class="carousel-btn carousel-prev" onclick="carouselMove(-1)" aria-label="Previous screenshot">&#8249;</button>
+        <button class="carousel-btn carousel-next" onclick="carouselMove(1)" aria-label="Next screenshot">&#8250;</button>
+        <div class="carousel-dots" id="carouselDots">
+          <button class="dot-btn active" onclick="carouselGo(0)" aria-label="Screenshot 1"></button>
+          <button class="dot-btn" onclick="carouselGo(1)" aria-label="Screenshot 2"></button>
+          <button class="dot-btn" onclick="carouselGo(2)" aria-label="Screenshot 3"></button>
         </div>
       </div>
     </div>
@@ -279,6 +231,14 @@
       var t = b.textContent; b.textContent = 'Copied!';
       setTimeout(function () { b.textContent = t; }, 1500);
     });
+  }
+
+  var _ci = 0, _cn = 3;
+  function carouselMove(d) { carouselGo((_ci + d + _cn) % _cn); }
+  function carouselGo(i) {
+    _ci = i;
+    document.getElementById('carouselTrack').style.transform = 'translateX(-' + (i * 100) + '%)';
+    document.querySelectorAll('.dot-btn').forEach(function(b, j) { b.classList.toggle('active', j === i); });
   }
 </script>
 </body>
