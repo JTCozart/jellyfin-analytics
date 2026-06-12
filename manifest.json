@@ -8,6 +8,14 @@
         "category": "General",
         "versions": [
             {
+                "version": "2026.6.12.1409",
+                "changelog": "### 1.0.0.0 - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.\n",
+                "targetAbi": "10.11.0.0",
+                "sourceUrl": "https://github.com/JTCozart/jellyfin-analytics/releases/download/v20260612.1409/user-analytics_2026.6.12.1409.zip",
+                "checksum": "d9beeca9b554431947787700393ec5af",
+                "timestamp": "2026-06-12T14:10:27Z"
+            },
+            {
                 "version": "2026.6.11.1153",
                 "changelog": "### 1.0.0.0 - Initial release: live playback tracking, SQLite storage, admin dashboard and REST API.\n",
                 "targetAbi": "10.11.0.0",
