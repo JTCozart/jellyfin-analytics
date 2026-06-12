@@ -112,6 +112,12 @@ public sealed class PlaybackTrackingService : IHostedService
             }
 
             var playedSeconds = (long)Math.Max(0, (DateTime.UtcNow - inFlight.StartedUtc).TotalSeconds);
+
+            if (config?.CapWatchTimeToRuntime == true && item.RunTimeTicks is > 0)
+            {
+                playedSeconds = Math.Min(playedSeconds, item.RunTimeTicks.Value / 10_000_000L);
+            }
+
             var minimum = config?.MinimumPlaySeconds ?? 0;
             if (playedSeconds < minimum)
             {

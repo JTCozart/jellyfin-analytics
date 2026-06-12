@@ -15,6 +15,7 @@ public class PluginConfiguration : BasePluginConfiguration
         RetentionDays = 0;
         MinimumPlaySeconds = 30;
         TrackLivePlayback = true;
+        CapWatchTimeToRuntime = true;
     }
 
     /// <summary>
@@ -32,4 +33,11 @@ public class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets a value indicating whether live playback events are tracked.
     /// </summary>
     public bool TrackLivePlayback { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether recorded watch time is capped to the
+    /// item's runtime. When enabled, pausing a video for hours will not inflate watch
+    /// time beyond the actual length of the content.
+    /// </summary>
+    public bool CapWatchTimeToRuntime { get; set; }
 }

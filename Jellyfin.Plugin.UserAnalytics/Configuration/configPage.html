@@ -164,6 +164,19 @@
                             </label>
                             <div class="fieldDescription checkboxFieldDescription">Record plays as they happen from session events.</div>
                         </div>
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input is="emby-checkbox" type="checkbox" id="uaCapRuntime" />
+                                <span>Cap watch time to item runtime</span>
+                            </label>
+                            <div class="fieldDescription checkboxFieldDescription">
+                                Watch time is measured as wall-clock time between play and stop — pausing a
+                                video for hours and then stopping will inflate the recorded duration. When this
+                                option is enabled, watch time for any single session is capped to the item's
+                                actual runtime, so pause time beyond the content length is ignored. Recommended
+                                for most setups. Disable only if items have unreliable runtime metadata.
+                            </div>
+                        </div>
                         <div class="inputContainer">
                             <label class="inputLabel inputLabelUnfocused" for="uaMinSeconds">Minimum play seconds</label>
                             <input is="emby-input" type="number" id="uaMinSeconds" min="0" />
@@ -441,6 +454,7 @@
             function loadConfig() {
                 return ApiClient.getPluginConfiguration(pluginId).then(function (cfg) {
                     $('uaTrackLive').checked = cfg.TrackLivePlayback;
+                    $('uaCapRuntime').checked = cfg.CapWatchTimeToRuntime;
                     $('uaMinSeconds').value = cfg.MinimumPlaySeconds;
                     $('uaRetentionDays').value = cfg.RetentionDays;
                 });
@@ -451,6 +465,7 @@
                 Dashboard.showLoadingMsg();
                 ApiClient.getPluginConfiguration(pluginId).then(function (cfg) {
                     cfg.TrackLivePlayback = $('uaTrackLive').checked;
+                    cfg.CapWatchTimeToRuntime = $('uaCapRuntime').checked;
                     cfg.MinimumPlaySeconds = parseInt($('uaMinSeconds').value, 10) || 0;
                     cfg.RetentionDays = parseInt($('uaRetentionDays').value, 10) || 0;
                     ApiClient.updatePluginConfiguration(pluginId, cfg).then(function (r) {
