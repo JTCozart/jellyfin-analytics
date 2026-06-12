@@ -27,8 +27,10 @@ public sealed class PlaybackTrackingService : IHostedService
     private readonly IPlaybackRepository _repository;
     private readonly ILogger<PlaybackTrackingService> _logger;
 
-    // Key: play session id -> when playback started (UTC).
-    private readonly ConcurrentDictionary<string, DateTime> _inFlight = new(StringComparer.Ordinal);
+    // Key: play session id -> (when playback started UTC, play method captured at start).
+    // PlayMethod is captured at PlaybackStart because the session's PlayState is cleared
+    // before PlaybackStopped fires, leaving PlayMethod null if read at stop time.
+    private readonly ConcurrentDictionary<string, (DateTime StartedUtc, string PlayMethod)> _inFlight = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PlaybackTrackingService"/> class.
@@ -77,8 +79,8 @@ public sealed class PlaybackTrackingService : IHostedService
         var key = GetSessionKey(e);
         if (key is not null)
         {
-            // A fresh start resets the timer for this session.
-            _inFlight[key] = DateTime.UtcNow;
+            var playMethod = e.Session?.PlayState?.PlayMethod?.ToString() ?? string.Empty;
+            _inFlight[key] = (DateTime.UtcNow, playMethod);
         }
     }
 
@@ -104,12 +106,12 @@ public sealed class PlaybackTrackingService : IHostedService
             // duplicate stop (already recorded) or for a play whose start we never saw
             // (e.g. it began before the plugin loaded) - both are skipped, which keeps the
             // play count and the wall-clock duration correct.
-            if (key is null || !_inFlight.TryRemove(key, out var startedUtc))
+            if (key is null || !_inFlight.TryRemove(key, out var inFlight))
             {
                 return;
             }
 
-            var playedSeconds = (long)Math.Max(0, (DateTime.UtcNow - startedUtc).TotalSeconds);
+            var playedSeconds = (long)Math.Max(0, (DateTime.UtcNow - inFlight.StartedUtc).TotalSeconds);
             var minimum = config?.MinimumPlaySeconds ?? 0;
             if (playedSeconds < minimum)
             {
@@ -121,7 +123,7 @@ public sealed class PlaybackTrackingService : IHostedService
             var itemType = item.GetBaseItemKind().ToString();
             var clientName = e.ClientName ?? string.Empty;
             var deviceName = e.DeviceName ?? string.Empty;
-            var playMethod = e.Session?.PlayState?.PlayMethod?.ToString() ?? string.Empty;
+            var playMethod = inFlight.PlayMethod;
 
             foreach (var user in e.Users)
             {
