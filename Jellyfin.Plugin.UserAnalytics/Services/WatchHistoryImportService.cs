@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Jellyfin.Data.Enums;
+using Jellyfin.Database.Implementations.Entities;
 using Jellyfin.Plugin.UserAnalytics.Data;
 using Jellyfin.Plugin.UserAnalytics.Models;
 using MediaBrowser.Controller.Entities;
@@ -69,7 +70,7 @@ public sealed class WatchHistoryImportService
         var records = new List<PlaybackRecord>();
         var usersScanned = 0;
 
-        foreach (var user in _userManager.Users)
+        foreach (var user in EnumerateUsers())
         {
             usersScanned++;
 
@@ -133,5 +134,23 @@ public sealed class WatchHistoryImportService
 
         _logger.LogInformation("{Message}", result.Message);
         return result;
+    }
+
+    /// <summary>
+    /// Enumerates all users in a way that works across Jellyfin 10.11.x releases.
+    /// </summary>
+    /// <remarks>
+    /// 10.11.7 exposes the user list via an <c>IUserManager.Users</c> property; 10.11.11 replaced
+    /// it with a <c>GetUsers()</c> method. The plugin is compiled against 10.11.7, so a direct call
+    /// to the property throws <see cref="MissingMethodException"/> on 10.11.11. Resolving the member
+    /// by reflection lets the single build run on both server versions.
+    /// </remarks>
+    private IEnumerable<User> EnumerateUsers()
+    {
+        var managerType = _userManager.GetType();
+        var users = managerType.GetMethod("GetUsers", Type.EmptyTypes)?.Invoke(_userManager, null)
+            ?? managerType.GetProperty("Users")?.GetValue(_userManager);
+
+        return users as IEnumerable<User> ?? Array.Empty<User>();
     }
 }

@@ -14,6 +14,6 @@ owner: "jtczrt"
 artifacts:
   - "Jellyfin.Plugin.UserAnalytics.dll"
 changelog: >
-  ### 2026.6.12
-  - Fix play method always showing as Unknown in the play method chart
-  - Add option to cap watch time to item runtime (prevents pause time inflating watch time)
+  ### 2026.6.24
+  - Fix watch history import failing on Jellyfin 10.11.11 (IUserManager.Users was replaced
+    by GetUsers()); the import now works on 10.11.7 through 10.11.11
