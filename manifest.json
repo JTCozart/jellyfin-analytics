@@ -9,6 +9,14 @@
         "imageUrl": "https://jtcozart.github.io/jellyfin-analytics/assets/user_analytics_ss1.png",
         "versions": [
             {
+                "version": "2026.6.24.1910",
+                "changelog": "### 2026.6.24 - Fix watch history import failing on Jellyfin 10.11.11 (IUserManager.Users was replaced\n  by GetUsers()); the import now works on 10.11.7 through 10.11.11\n",
+                "targetAbi": "10.11.0.0",
+                "sourceUrl": "https://github.com/JTCozart/jellyfin-analytics/releases/download/v20260624.1910/user-analytics_2026.6.24.1910.zip",
+                "checksum": "fb78f1d774e7668452bdc506c217e080",
+                "timestamp": "2026-06-24T23:13:05Z"
+            },
+            {
                 "version": "2026.6.12.1433",
                 "changelog": "### 2026.6.12 - Fix play method always showing as Unknown in the play method chart - Add option to cap watch time to item runtime (prevents pause time inflating watch time)\n",
                 "targetAbi": "10.11.0.0",
