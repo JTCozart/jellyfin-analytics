@@ -2,7 +2,7 @@
 
 [![Build Plugin](https://github.com/JTCozart/jellyfin-analytics/actions/workflows/build.yaml/badge.svg)](https://github.com/JTCozart/jellyfin-analytics/actions/workflows/build.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![AI Generated Badge](https://www.aihonestybadge.com/badges/ai-generated.svg)](https://www.aihonestybadge.com)
+<a href="https://www.aihonestybadge.com"><img src="https://www.aihonestybadge.com/badges/ai-generated.svg" alt="AI Generated Badge" height="20" /></a>
 
 A Jellyfin server plugin that produces **per-user playback analytics** — play history,
 play counts, total watch time and most-watched items — shown in an admin dashboard (with
